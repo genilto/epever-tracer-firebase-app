@@ -28,13 +28,13 @@
 
     <style media="screen">
       body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 80%; margin: 15px auto 15px; padding: 32px 24px; border-radius: 3px; }
-      #message h3 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h2 { font-size: 18px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px 10px;}
-      #message h1 { font-size: 22px; font-weight: 400; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
+      .message { background: white; max-width: 80%; margin: 15px auto 15px; padding: 32px 24px; border-radius: 3px; }
+      .message h3 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
+      .message h2 { font-size: 18px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px 10px;}
+      .message h1 { font-size: 22px; font-weight: 400; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
+      .message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
+      .message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
+      .message, .message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
       #load { 
         padding-top: 10px;
         font-size: 13px; 
@@ -46,14 +46,14 @@
         padding: 10px 0px 10px 0px;
       }
       @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
+        body, .message { margin-top: 0; background: white; box-shadow: none; }
         body { border-top: 16px solid #ffa100; }
       }
     </style>
   </head>
   <body>
-    <div id="message">
-      <h3>Energia Solar</h3>
+    <div class="message">
+      <h3>Energia Solar (Tempo Real)</h3>
       <div id="load"></div>
       <div id="login">
         <h1>Faça login para continuar</h1>
@@ -65,12 +65,41 @@
       </div>
     </div>
 
+    <div class="message">
+      <h3>Histórico hoje</h3>
+      <div>
+        <canvas id="todayChart"></canvas>
+      </div>
+    </div>
+
+    <div class="message">
+      <h3>Histórico por dia</h3>
+      <div>
+        <canvas id="dayChart"></canvas>
+      </div>
+    </div>
+
+    <div class="message">
+      <h3>Histórico por mês</h3>
+      <div>
+        <canvas id="monthChart"></canvas>
+      </div>
+    </div>
+
+    <div class="message">
+      <h3>Histórico por ano</h3>
+      <div>
+        <canvas id="yearChart"></canvas>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js" integrity="sha512-sW/w8s4RWTdFFSduOTGtk4isV1+190E/GghVffMA9XczdJ2MDzSzLEubKAs5h0wzgSJOQTRYyaz73L3d6RtJSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         const loadEl = document.querySelector('#load');
         const loginEl = document.querySelector('#login');
         const loginButton = document.querySelector('#loginButton');
-        const message = document.querySelector("#message");
         
         // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
         // // The Firebase SDK is initialized and available here!
@@ -121,15 +150,15 @@
           db.collection(collection).doc("tracer")
             .onSnapshot((doc) => {
                 let docData = doc.data();
-                console.log("Current data: ", docData);
+                //console.log("Current data: ", docData);
 
                 qtdUpdates++;
                 let realtimeData = docData.realtimeData;
                 let statisticalParameters = docData.statisticalParameters;
                 let dataRecebido = docData.sincDate && docData.sincDate.seconds ? new Date(docData.sincDate.seconds * 1000) : '...';
 
-                console.log('docData.sincDate', docData.sincDate);
-                console.log('dataRecebido', dataRecebido);
+                //console.log('docData.sincDate', docData.sincDate);
+                //console.log('dataRecebido', dataRecebido);
 
                 loadEl.innerHTML = `
                       <div class="panel1">
@@ -198,34 +227,152 @@
                       </div>`;
             });
 
+            function adicionaZero(numero){
+                if (numero <= 9) 
+                    return "0" + numero;
+                else
+                    return numero.toString();
+            }
+
+            function getFormatedDate (timestamp) {            
+              let dataAtual = new Date(timestamp);
+              let dataAtualFormatada = (adicionaZero(dataAtual.getDate()) + "/" 
+                                    + (adicionaZero(dataAtual.getMonth()+1)) + "/" 
+                                    + dataAtual.getFullYear() + " "
+                                    + adicionaZero(dataAtual.getHours ()) + ":"
+                                    + adicionaZero(dataAtual.getMinutes ()) + ":"
+                                    + adicionaZero(dataAtual.getSeconds ()));
+              return dataAtualFormatada;
+            }
+
+            function loadChart (chartId, collection) {
+
+              colRef = db.collection(collection);
+
+              colRef.get().then((querySnapshot) => {
+                const labels = [];
+                const generatedEnergy = [];
+                const consumedEnergy = [];
+                
+                querySnapshot.forEach((doc) => {
+                  docData = doc.data();
+
+                  labels.push(doc.id);
+                  generatedEnergy.push(docData.generatedEnergy);
+                  consumedEnergy.push(docData.consumedEnergy);
+
+                  // doc.data() is never undefined for query doc snapshots
+                  // console.log(doc.id, " => ", doc.data());
+                });
+
+                const data = {
+                  labels: labels,
+                  datasets: [{
+                    label: 'Geração',
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: generatedEnergy,
+                  },
+                  {
+                    label: 'Consumo',
+                    backgroundColor: 'rgb(99, 99, 132)',
+                    borderColor: 'rgb(99, 99, 132)',
+                    data: consumedEnergy,
+                  }]
+                };
+              
+                const dayChart = new Chart(
+                  document.getElementById(chartId),
+                  {
+                    type: 'line',
+                    data: data,
+                    options: {}
+                  }
+                );
+              });
+            }
+
+            function loadTodayChart (chartId, collection, timestamp) {
+                colRef = db.collection(collection)
+                    .where("sincTimestamp", ">=", timestamp)
+                    .where("sincTimestamp", "<=", timestamp + 86400000); // um dia
+               
+                colRef.get().then((querySnapshot) => {
+                  const labels = [];
+
+                  const pvVoltage = [];
+                  const batteryVoltage = [];
+                  const pvPower = [];
+                  
+                  querySnapshot.forEach((doc) => {
+                    docData = doc.data();
+
+                    //labels.push(doc.id);
+                    const stringDate = getFormatedDate(docData.sincTimestamp);
+                    labels.push(stringDate);
+
+                    pvVoltage.push( docData.realtimeData.pvVoltage );
+                    batteryVoltage.push( docData.realtimeData.batteryVoltage );
+                    pvPower.push( docData.realtimeData.pvPower );
+
+                    // doc.data() is never undefined for query doc snapshots
+                    console.log(doc.id, " => ", doc.data());
+                  });
+
+                  const data = {
+                    labels: labels,
+                    datasets: [{
+                      label: 'Tensão Painéis',
+                      backgroundColor: 'rgb(00, 255, 00)',
+                      borderColor: 'rgb(00, 255, 00)',
+                      data: pvVoltage,
+                    },
+                    {
+                      label: 'Tensão Bateria',
+                      backgroundColor: 'rgb(00, 00, 255)',
+                      borderColor: 'rgb(00, 00, 255)',
+                      data: batteryVoltage,
+                    },
+                    {
+                      label: 'Potência',
+                      backgroundColor: 'rgb(255, 00, 00)',
+                      borderColor: 'rgb(255, 00, 00)',
+                      data: pvPower,
+                    }]
+                  };
+                
+                  const todayChart = new Chart(
+                    document.getElementById(chartId),
+                    {
+                      type: 'line',
+                      data: data,
+                      options: {}
+                    }
+                  );
+                });
+              }
+
+            var currentDate = new Date();
+            currentDate.setHours(0, 0, 0, 0, 0);
+            let timestamp = currentDate.getTime();
+
+            const currentYear = currentDate.getFullYear ();
+            const currentMonth = adicionaZero(currentDate.getMonth()+1);
+            
+            loadChart ('dayChart', "users/" + userCredentials.uid + "/devices/tracer/statistical/"+currentYear+"/months/"+currentYear+"-"+currentMonth+"/days");
+            loadChart ('monthChart', "users/" + userCredentials.uid + "/devices/tracer/statistical/"+currentYear+"/months");
+            loadChart ('yearChart', "users/" + userCredentials.uid + "/devices/tracer/statistical");
+            
+            loadTodayChart ('todayChart', "users/" + userCredentials.uid + "/devices/tracer/readings", timestamp);
+
         } else {
           console.log('logged out');
-          message.style.display = 'block';
         }
       });
 
-
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        /*
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-        }*/
       });
     </script>
+
+    
   </body>
 </html>
