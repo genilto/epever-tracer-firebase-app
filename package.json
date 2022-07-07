@@ -1,0 +1,28 @@
+{
+  "name": "epever-tracer-firebase-app",
+  "version": "0.0.2",
+  "description": "App for the Tracer Reader",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/genilto/epever-tracer-firebase-app.git"
+  },
+  "keywords": [
+    "tracer",
+    "epever",
+    "reader"
+  ],
+  "author": "Genilto Vanzin",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/genilto/epever-tracer-firebase-app/issues"
+  },
+  "homepage": "https://github.com/genilto/epever-tracer-firebase-app#readme",
+  "dependencies": {
+    "chart.js": "^3.8.0",
+    "chartjs-plugin-zoom": "^1.2.1"
+  }
+}
