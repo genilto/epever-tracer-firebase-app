@@ -304,6 +304,7 @@
                   const pvVoltage = [];
                   const batteryVoltage = [];
                   const pvPower = [];
+                  const loadPower = [];
                   
                   querySnapshot.forEach((doc) => {
                     docData = doc.data();
@@ -315,6 +316,7 @@
                     pvVoltage.push( docData.realtimeData.pvVoltage );
                     batteryVoltage.push( docData.realtimeData.batteryVoltage );
                     pvPower.push( docData.realtimeData.pvPower );
+                    loadPower.push( docData.realtimeData.loadPower );
 
                     // doc.data() is never undefined for query doc snapshots
                     console.log(doc.id, " => ", doc.data());
@@ -335,10 +337,16 @@
                       data: batteryVoltage,
                     },
                     {
-                      label: 'Potência',
+                      label: 'Potência PV',
+                      backgroundColor: 'rgb(242, 79, 00)',
+                      borderColor: 'rgb(242, 79, 00)',
+                      data: pvPower,
+                    },
+                    {
+                      label: 'Potência Load',
                       backgroundColor: 'rgb(255, 00, 00)',
                       borderColor: 'rgb(255, 00, 00)',
-                      data: pvPower,
+                      data: loadPower,
                     }]
                   };
                 
